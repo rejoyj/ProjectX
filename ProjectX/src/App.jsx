@@ -1,11 +1,18 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import AuthPage from './Authpage'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AuthPage from "./Authpage";
+import Dashboard from "./Dashboard";
+import "./App.css"
 
 export default function App() {
-  return <AuthPage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AuthPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
+
 
 
