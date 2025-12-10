@@ -8,9 +8,12 @@ app.use(express.json());
 const authRoutes = require("./routes/auth");
 app.use("/auth", authRoutes);
 
+const activityRoutes = require("./routes/activity");
+app.use("/activity", activityRoutes);
+
 
 // Connect to MongoDB Atlas
-mongoose.connect("mongodb+srv://rjcodes114_db_user:Rejoy%40ProjectX@projectx.cnjswqp.mongodb.net/")
+mongoose.connect("mongodb+srv://rjcodes114_db_user:Rejoy%40ProjectX@projectx.cnjswqp.mongodb.net/ProjectX")
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.log(err));
 

@@ -3,13 +3,17 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function AuthPage() {
   const [mode, setMode] = useState("login");
-  const toggleMode = () => setMode(mode === "login" ? "signup" : "login");
+  const toggleMode = () =>
+    setMode(mode === "login" ? "signup" : "login");
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // ---------------------------------------------------
+  // SUBMIT HANDLER
+  // ---------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -38,17 +42,17 @@ export default function AuthPage() {
       const data = await res.json();
       console.log("Response:", data);
 
-      if (res.ok) {
-  const savedUser = {
-    email,
-    token: data.token,
-  };
+      // Backend always returns { success, message, user }
+      if (!data.success) {
+        alert(data.message || "Something went wrong");
+        return;
+      }
 
-  localStorage.setItem("user", JSON.stringify(savedUser));
-  window.location.href = "/dashboard";   // or navigate("/dashboard");
-} else {
-  alert(data.message || "Something went wrong");
-}
+      // Save full user object (includes _id)
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect
+      window.location.href = "/dashboard";
 
     } catch (err) {
       alert("Server error");
@@ -56,9 +60,15 @@ export default function AuthPage() {
     }
   };
 
+  // ---------------------------------------------------
+  // UI
+  // ---------------------------------------------------
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center">
-      <div className="card shadow-lg p-4" style={{ width: "420px", borderRadius: "18px" }}>
+      <div
+        className="card shadow-lg p-4"
+        style={{ width: "420px", borderRadius: "18px" }}
+      >
         <h2 className="text-center mb-4 fw-bold text-dark">
           {mode === "login" ? "Welcome Back" : "Create Your Account"}
         </h2>
@@ -126,7 +136,9 @@ export default function AuthPage() {
         </form>
 
         <p className="text-center mt-4">
-          {mode === "login" ? "Don't have an account?" : "Already registered?"}
+          {mode === "login"
+            ? "Don't have an account?"
+            : "Already registered?"}
           <button
             className="btn btn-link p-0 ms-1"
             style={{ fontWeight: "600" }}
