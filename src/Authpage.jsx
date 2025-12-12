@@ -22,10 +22,13 @@ export default function AuthPage() {
       return;
     }
 
-    const url =
-      mode === "signup"
-        ? "http://localhost:5000/auth/signup"
-        : "http://localhost:5000/auth/login";
+const BASE_URL = "https://projectx-backend-sqvi.onrender.com";
+
+const url =
+  mode === "signup"
+    ? `${BASE_URL}/auth/signup`
+    : `${BASE_URL}/auth/login`;
+
 
     const payload =
       mode === "signup"

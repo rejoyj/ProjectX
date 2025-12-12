@@ -5,8 +5,27 @@ router.put("/:id", async (req, res) => {
       req.body,
       { new: true }
     );
-    res.json(updatedUser);
+
+    if (!updatedUser) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    const safeUser = {
+      _id: updatedUser._id,
+      fullName: updatedUser.fullName,
+      email: updatedUser.email,
+      bio: updatedUser.bio || "",
+      profession: updatedUser.profession || "",
+      website: updatedUser.website || "",
+    };
+
+    return res.json({
+      success: true,
+      user: safeUser
+    });
+
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.log(err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });

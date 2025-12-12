@@ -3,6 +3,11 @@ import { useState, useEffect } from "react";
 
 export default function Dashboard() {
   // ---------------------------------------------------
+  // Backend BASE URL (Render)
+  // ---------------------------------------------------
+  const BASE_URL = "https://projectx-backend-sqvi.onrender.com";
+
+  // ---------------------------------------------------
   // Load user from localStorage
   // ---------------------------------------------------
   let raw = localStorage.getItem("user");
@@ -13,7 +18,7 @@ export default function Dashboard() {
   // Profile state (initialize from stored user)
   // ---------------------------------------------------
   const [profile, setProfile] = useState({
-    fullName: user?.name || "",
+    fullName: user?.fullName || "",
     email: user?.email || "",
     bio: user?.bio || "",
     profession: user?.profession || "",
@@ -28,12 +33,12 @@ export default function Dashboard() {
   const [rows, setRows] = useState([]);
 
   // ---------------------------------------------------
-  // Fetch activity on load
+  // Fetch activity from backend
   // ---------------------------------------------------
   useEffect(() => {
     if (!user?._id) return;
 
-    fetch(`http://localhost:5000/activity/${user._id}`)
+    fetch(`${BASE_URL}/activity/${user._id}`)
       .then((res) => res.json())
       .then((data) => setRows(data || []))
       .catch(() => setRows([]));
@@ -50,20 +55,18 @@ export default function Dashboard() {
   // Save profile to backend
   // ---------------------------------------------------
   function saveProfile() {
-    fetch(`http://localhost:5000/auth/${user._id}`, {
+    fetch(`${BASE_URL}/auth/${user._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(profile),
     })
       .then((res) => res.json())
       .then((data) => {
-        // Backend returns: { success, message, user }
         const updated = data.user || profile;
 
-        // Save updated user
+        // Save updated user locally
         localStorage.setItem("user", JSON.stringify(updated));
 
-        // Update UI state
         setProfile(updated);
         setEditing(false);
       })
@@ -81,7 +84,7 @@ export default function Dashboard() {
         {/* WELCOME BOX */}
         <div className="mb-4">
           {user ? (
-            <p className="fs-5">Welcome, {user.name || user.email}</p>
+            <p className="fs-5">Welcome, {user.fullName || user.email}</p>
           ) : (
             <p className="fs-5">No user logged in</p>
           )}
@@ -101,7 +104,7 @@ export default function Dashboard() {
               {!editing ? (
                 <>
                   <p>
-                    <strong>Name:</strong> {profile.name}
+                    <strong>Name:</strong> {profile.fullName}
                   </p>
                   <p>
                     <strong>Email:</strong> {profile.email}

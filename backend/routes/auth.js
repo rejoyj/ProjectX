@@ -2,13 +2,11 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-// User Schema
+// USER SCHEMA
 const UserSchema = new mongoose.Schema({
   fullName: String,
   email: { type: String, unique: true },
   password: String,
-
-  // Added extra profile fields
   bio: String,
   profession: String,
   website: String
@@ -16,25 +14,49 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 
-// Signup
+// HELPER → Format user object sent to frontend
+function formatUser(u) {
+  return {
+    _id: u._id,
+    fullName: u.fullName,
+    email: u.email,
+    bio: u.bio || "",
+    profession: u.profession || "",
+    website: u.website || ""
+  };
+}
+
+// ---------------------------------------------------
+// SIGNUP
+// ---------------------------------------------------
 router.post("/signup", async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
 
     const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ message: "Email already used" });
+    if (exists) {
+      return res.json({
+        success: false,
+        message: "Email already registered"
+      });
+    }
 
-    const user = new User({ fullName, email, password });
-    await user.save();
+    const newUser = new User({ fullName, email, password });
+    await newUser.save();
 
-    return res.json({ success: true, user });
+    return res.json({
+      success: true,
+      user: formatUser(newUser)
+    });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Server error" });
+    res.json({ success: false, message: "Server error" });
   }
 });
 
-// Login
+// ---------------------------------------------------
+// LOGIN
+// ---------------------------------------------------
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -49,35 +71,34 @@ router.post("/login", async (req, res) => {
       return res.json({ success: false, message: "Invalid credentials" });
     }
 
-    res.json({
+    return res.json({
       success: true,
-      user: {
-        userId: user._id,
-        email: user.email,
-        name: user.name || "",
-        profession: user.profession || "",
-        bio: user.bio || "",
-        website: user.website || "",
-        role: user.role
-      }
+      user: formatUser(user)
     });
 
   } catch (err) {
+    console.log(err);
     res.json({ success: false, message: "Server error" });
   }
 });
 
+// ---------------------------------------------------
 // GET USER BY ID
+// ---------------------------------------------------
 router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    res.json(user);
+    if (!user) return res.json({ success: false, message: "Not found" });
+
+    return res.json(formatUser(user));
   } catch {
-    res.status(404).json({ message: "User not found" });
+    res.json({ success: false, message: "Error fetching user" });
   }
 });
 
+// ---------------------------------------------------
 // UPDATE USER
+// ---------------------------------------------------
 router.put("/:id", async (req, res) => {
   try {
     const updated = await User.findByIdAndUpdate(
@@ -86,10 +107,13 @@ router.put("/:id", async (req, res) => {
       { new: true }
     );
 
-    return res.json({ success: true, user: updated });
+    return res.json({
+      success: true,
+      user: formatUser(updated)
+    });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Update failed" });
+    res.json({ success: false, message: "Update failed" });
   }
 });
 
