@@ -58,142 +58,162 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-vh-100" style={{ padding: "40px 0" }}>
-      <div className="container">
+    <div className="d-flex min-vh-100">
+      {/* ---------------- LEFT NAVBAR ---------------- */}
+      <div
+        className="bg-dark text-white p-3"
+        style={{ width: "230px", position: "fixed", height: "100vh" }}
+      >
+        <h4 className="text-center mb-4">ProjectX</h4>
 
-        {/* HEADER */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="fw-bold">Dashboard</h2>
-          <button
-            className="btn btn-outline-primary"
-            onClick={() => setShowWifi(true)}
-          >
-            🔌 Connect with Reader
-          </button>
-        </div>
+        <ul className="nav nav-pills flex-column gap-2">
+          <li className="nav-item">
+            <button
+              className="nav-link text-white"
+              onClick={() => navigate("/")}
+            >
+              🏠 Home
+            </button>
+          </li>
 
-        {/* WELCOME */}
-        <p className="fs-5 mb-4">
-          Welcome, {user?.fullName || user?.email}
-        </p>
+          <li className="nav-item">
+            <button className="nav-link active">
+              📊 Dashboard
+            </button>
+          </li>
 
-        <div className="row">
-          {/* PROFILE */}
-          <div className="col-md-4">
-            <div className="card p-3 shadow-lg border-0">
-              <h4>Your Profile</h4>
+          <li className="nav-item">
+            <button
+              className="nav-link text-white"
+              onClick={() => navigate(`/profile/${user?._id}`)}
+            >
+              👤 Profile
+            </button>
+          </li>
 
-              {!editing ? (
-                <>
-                  <p><strong>Name:</strong> {profile.fullName}</p>
-                  <p><strong>Email:</strong> {profile.email}</p>
-                  <p><strong>Profession:</strong> {profile.profession || "—"}</p>
-                  <p><strong>Bio:</strong> {profile.bio || "—"}</p>
-                  <p>
-                    <strong>Website:</strong>{" "}
-                    {profile.website ? (
-                      <a
-                        href={
-                          profile.website.startsWith("http")
-                            ? profile.website
-                            : `https://${profile.website}`
-                        }
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {profile.website}
-                      </a>
-                    ) : "—"}
-                  </p>
+          <li className="nav-item">
+            <button
+              className="nav-link text-white"
+              onClick={() => navigate("/settings")}
+            >
+              ⚙️ Settings
+            </button>
+          </li>
+        </ul>
+      </div>
 
-                  <button
-                    className="btn btn-primary w-100 mt-2"
-                    onClick={() => setEditing(true)}
-                  >
-                    Edit Profile
-                  </button>
+      {/* ---------------- MAIN CONTENT ---------------- */}
+      <div
+        className="flex-grow-1"
+        style={{ marginLeft: "230px", padding: "40px 0" }}
+      >
+        <div className="container">
 
-                  <button
-                    className="btn btn-info w-100 mt-2 text-white"
-                    onClick={() => navigate(`/profile/${user._id}`)}
-                  >
-                    View as Member
-                  </button>
-                </>
-              ) : (
-                <>
-                  <input
-                    className="form-control mb-2"
-                    name="fullName"
-                    value={profile.fullName}
-                    onChange={handleProfileChange}
-                  />
-                  <input
-                    className="form-control mb-2"
-                    name="profession"
-                    value={profile.profession}
-                    onChange={handleProfileChange}
-                  />
-                  <textarea
-                    className="form-control mb-2"
-                    name="bio"
-                    value={profile.bio}
-                    onChange={handleProfileChange}
-                  />
-                  <input
-                    className="form-control mb-2"
-                    name="website"
-                    value={profile.website}
-                    onChange={handleProfileChange}
-                  />
-                  <button
-                    className="btn btn-success w-100"
-                    onClick={saveProfile}
-                  >
-                    Save
-                  </button>
-                </>
-              )}
-            </div>
+          {/* HEADER */}
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h2 className="fw-bold">Dashboard</h2>
+            <button
+              className="btn btn-outline-primary"
+              onClick={() => setShowWifi(true)}
+            >
+              🔌 Connect with Reader
+            </button>
           </div>
 
-          {/* ACTIVITY */}
-          <div className="col-md-8">
-            <div className="card p-3 shadow-lg border-0">
-              <h4>Activity Table</h4>
+          {/* WELCOME */}
+          <p className="fs-5 mb-4">
+            Welcome, {user?.fullName || user?.email}
+          </p>
 
-              <table className="table table-bordered mt-3">
-                <thead className="table-dark">
-                  <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Link</th>
-                    <th>Note</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.length === 0 ? (
+          <div className="row">
+            {/* PROFILE */}
+            <div className="col-md-4">
+              <div className="card p-3 shadow-lg border-0">
+                <h4>Your Profile</h4>
+
+                {!editing ? (
+                  <>
+                    <p><strong>Name:</strong> {profile.fullName}</p>
+                    <p><strong>Email:</strong> {profile.email}</p>
+                    <p><strong>Profession:</strong> {profile.profession || "—"}</p>
+                    <p><strong>Bio:</strong> {profile.bio || "—"}</p>
+
+                    <button
+                      className="btn btn-primary w-100 mt-2"
+                      onClick={() => setEditing(true)}
+                    >
+                      Edit Profile
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      className="form-control mb-2"
+                      name="fullName"
+                      value={profile.fullName}
+                      onChange={handleProfileChange}
+                    />
+                    <input
+                      className="form-control mb-2"
+                      name="profession"
+                      value={profile.profession}
+                      onChange={handleProfileChange}
+                    />
+                    <textarea
+                      className="form-control mb-2"
+                      name="bio"
+                      value={profile.bio}
+                      onChange={handleProfileChange}
+                    />
+                    <button
+                      className="btn btn-success w-100"
+                      onClick={saveProfile}
+                    >
+                      Save
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* ACTIVITY */}
+            <div className="col-md-8">
+              <div className="card p-3 shadow-lg border-0">
+                <h4>Activity Table</h4>
+
+                <table className="table table-bordered mt-3">
+                  <thead className="table-dark">
                     <tr>
-                      <td colSpan="4" className="text-center">
-                        No data found
-                      </td>
+                      <th>Date</th>
+                      <th>Time</th>
+                      <th>Link</th>
+                      <th>Note</th>
                     </tr>
-                  ) : (
-                    rows.map((r, i) => (
-                      <tr key={i}>
-                        <td>{r.date}</td>
-                        <td>{r.time}</td>
-                        <td>
-                          <a href={r.link} target="_blank" rel="noreferrer">
-                            {r.link}
-                          </a>
+                  </thead>
+                  <tbody>
+                    {rows.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="text-center">
+                          No data found
                         </td>
-                        <td>{r.note}</td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      rows.map((r, i) => (
+                        <tr key={i}>
+                          <td>{r.date}</td>
+                          <td>{r.time}</td>
+                          <td>
+                            <a href={r.link} target="_blank" rel="noreferrer">
+                              {r.link}
+                            </a>
+                          </td>
+                          <td>{r.note}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
