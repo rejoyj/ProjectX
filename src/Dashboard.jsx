@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const BASE_URL = "https://projectx-backend-sqvi.onrender.com";
   const navigate = useNavigate();
 
   // ---------------- USER ----------------
@@ -22,27 +21,31 @@ export default function Dashboard() {
 
   const [editing, setEditing] = useState(false);
 
-  // ---------------- ACTIVITY ----------------
+  // ---------------- RFID ACTIVITY ----------------
   const [rows, setRows] = useState([]);
 
   // ---------------- WIFI MODAL ----------------
   const [showWifi, setShowWifi] = useState(false);
 
+  /* ------------------------------------
+     FETCH RFID DATA
+  ------------------------------------ */
   useEffect(() => {
-    if (!user?._id) return;
-
-    fetch(`${BASE_URL}/activity/${user._id}`)
+    fetch("https://esp-a6df.onrender.com/api/data")
       .then((res) => res.json())
       .then((data) => setRows(data || []))
       .catch(() => setRows([]));
-  }, [user]);
+  }, []);
 
+  /* ------------------------------------
+     PROFILE HANDLERS
+  ------------------------------------ */
   function handleProfileChange(e) {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   }
 
   function saveProfile() {
-    fetch(`${BASE_URL}/auth/${user._id}`, {
+    fetch(`https://projectx-backend-sqvi.onrender.com/auth/${user._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(profile),
@@ -57,6 +60,24 @@ export default function Dashboard() {
       .catch(() => alert("Profile update failed"));
   }
 
+  /* ------------------------------------
+     UPDATE NOTE (AUTO SAVE)
+  ------------------------------------ */
+  function updateNote(index, value) {
+    const updated = [...rows];
+    updated[index].note = value;
+    setRows(updated);
+
+    clearTimeout(updated[index].timer);
+    updated[index].timer = setTimeout(() => {
+      fetch(`https://esp-a6df.onrender.com/api/data/${updated[index].id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note: value }),
+      });
+    }, 500);
+  }
+
   return (
     <div className="d-flex min-vh-100">
       {/* ---------------- LEFT NAVBAR ---------------- */}
@@ -68,18 +89,13 @@ export default function Dashboard() {
 
         <ul className="nav nav-pills flex-column gap-2">
           <li className="nav-item">
-            <button
-              className="nav-link text-white"
-              onClick={() => navigate("/")}
-            >
+            <button className="nav-link text-white" onClick={() => navigate("/")}>
               🏠 Home
             </button>
           </li>
 
           <li className="nav-item">
-            <button className="nav-link active">
-              📊 Dashboard
-            </button>
+            <button className="nav-link active">📊 Dashboard</button>
           </li>
 
           <li className="nav-item">
@@ -103,12 +119,8 @@ export default function Dashboard() {
       </div>
 
       {/* ---------------- MAIN CONTENT ---------------- */}
-      <div
-        className="flex-grow-1"
-        style={{ marginLeft: "230px", padding: "40px 0" }}
-      >
+      <div className="flex-grow-1" style={{ marginLeft: "230px", padding: "40px 0" }}>
         <div className="container">
-
           {/* HEADER */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h2 className="fw-bold">Dashboard</h2>
@@ -120,7 +132,6 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* WELCOME */}
           <p className="fs-5 mb-4">
             Welcome, {user?.fullName || user?.email}
           </p>
@@ -165,10 +176,7 @@ export default function Dashboard() {
                       value={profile.bio}
                       onChange={handleProfileChange}
                     />
-                    <button
-                      className="btn btn-success w-100"
-                      onClick={saveProfile}
-                    >
+                    <button className="btn btn-success w-100" onClick={saveProfile}>
                       Save
                     </button>
                   </>
@@ -176,17 +184,17 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* ACTIVITY */}
+            {/* ACTIVITY TABLE */}
             <div className="col-md-8">
               <div className="card p-3 shadow-lg border-0">
-                <h4>Activity Table</h4>
+                <h4>RFID Activity</h4>
 
                 <table className="table table-bordered mt-3">
                   <thead className="table-dark">
                     <tr>
                       <th>Date</th>
                       <th>Time</th>
-                      <th>Link</th>
+                      <th>UID</th>
                       <th>Note</th>
                     </tr>
                   </thead>
@@ -199,15 +207,18 @@ export default function Dashboard() {
                       </tr>
                     ) : (
                       rows.map((r, i) => (
-                        <tr key={i}>
+                        <tr key={r.id}>
                           <td>{r.date}</td>
                           <td>{r.time}</td>
+                          <td className="fw-bold">{r.link}</td>
                           <td>
-                            <a href={r.link} target="_blank" rel="noreferrer">
-                              {r.link}
-                            </a>
+                            <input
+                              className="form-control form-control-sm"
+                              value={r.note}
+                              placeholder="Add note..."
+                              onChange={(e) => updateNote(i, e.target.value)}
+                            />
                           </td>
-                          <td>{r.note}</td>
                         </tr>
                       ))
                     )}
