@@ -194,7 +194,7 @@ export default function Dashboard() {
                     <tr>
                       <th>Date</th>
                       <th>Time</th>
-                      <th>UID</th>
+                      <th>URL</th>
                       <th>Note</th>
                     </tr>
                   </thead>
@@ -210,7 +210,7 @@ export default function Dashboard() {
                         <tr key={r.id}>
                           <td>{r.date}</td>
                           <td>{r.time}</td>
-                          <td className="fw-bold">{r.link}</td>
+                          <td className="fw-bold">{r.url}</td>
                           <td>
                             <input
                               className="form-control form-control-sm"
